@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2013-12-17 20:54:03 by Hibernate Tools 4.0.0 -->
+<hibernate-mapping>
+    <class name="domain.Sysrole" table="SYSROLE">
+        <id name="id" type="big_decimal">
+            <column name="ID" precision="22" scale="0" />
+            <generator class="assigned" />
+        </id>
+        <property name="name" type="string">
+            <column name="NAME" length="100" />
+        </property>
+        <set name="sysusers" table="SYSUSERANDROLE" inverse="false" lazy="true" fetch="select">
+            <key>
+                <column name="ROLEID" precision="22" scale="0" not-null="true" />
+            </key>
+            <many-to-many entity-name="domain.Sysuser">
+                <column name="USERID" precision="22" scale="0" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="syspages" table="SYSROLEANDPAGE" inverse="false" lazy="true" fetch="select">
+            <key>
+                <column name="ROLEID" precision="22" scale="0" not-null="true" />
+            </key>
+            <many-to-many entity-name="domain.Syspage">
+                <column name="PAGEID" precision="22" scale="0" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="sysrolepageopts" table="SYSROLEPAGEOPT" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="ROLEID" precision="22" scale="0" not-null="true" />
+            </key>
+            <one-to-many class="domain.Sysrolepageopt" />
+        </set>
+    </class>
+</hibernate-mapping>

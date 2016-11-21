@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+ 	<!-- 注解支持 -->
+	<context:annotation-config/>
+	
+	<!-- 配置属性 EL表达式 -->
+	<context:property-placeholder location="classpath:config.properties"></context:property-placeholder>
+
+	<!-- 对web包中的所有类进行扫描，以完成Bean创建和自动依赖注入的功能 -->
+	<context:component-scan base-package="com.wbhhc"></context:component-scan>
+	
+	<!-- MVC注解支持 -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+ 	
+ 	<!-- aop相关 -->
+	<aop:aspectj-autoproxy/>      	
+      	
+    <bean id="myInterceptor" class="com.wbhhc.aop.TestAspect"/>   	
+      
+	<aop:config>
+	 <aop:aspect id="myAop" ref="myInterceptor">
+			<aop:pointcut id="method1" expression="execution(* com.wbhhc.service.*.*(..))"  />
+			<aop:before method="doBefore" pointcut-ref="method1"/>
+			<aop:after method="doAfter" pointcut-ref="method1"/>
+			<aop:around method="doAround" pointcut-ref="method1"/>
+			<aop:after-throwing method="doThrowing" pointcut-ref="method1" throwing="ex"/>
+	 </aop:aspect>
+	</aop:config>
+	
+	<!-- 数据库相关 -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
+        <property name="driverClassName" value="${jdbc.driverClassName}"></property> 
+        <property name="url" value="${jdbc.url}"></property> 
+    	<property name="username" value="${jdbc.username}"/>
+       	<property name="password" value="${jdbc.password}"/>
+ 	</bean> 
+ 	
+ 	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+       <property name="dataSource" ref="dataSource"></property>
+       <property name="hibernateProperties">
+         <props>        
+               <prop key="hibernate.dialect">${hibernate.dialect}</prop>          
+               <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+               <prop key="hibernate.default_schema">${hibernate.default_schema}</prop>
+               <!--<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop> -->
+          </props>
+       </property>
+       <property name="packagesToScan" value="com.wbhhc.domain"></property>
+   </bean>
+   
+    <bean id="sessionFactory1" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+       <property name="dataSource" ref="dataSource"></property>
+       <property name="hibernateProperties">
+         <props>        
+               <prop key="hibernate.dialect">${hibernate.dialect}</prop>          
+               <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+               <prop key="hibernate.default_schema">${hibernate.default_schema}</prop>
+               <prop key="hibernate.current_session_context_class">thread</prop>
+          </props>
+       </property>
+       <property name="packagesToScan" value="com.wbhhc.domain"></property>
+   </bean>
+
+ 	<bean id="transactionManager"  
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">  
+        <property name="sessionFactory" ref="sessionFactory" />  
+   </bean>  
+   
+   <tx:annotation-driven/>  
+	
+</beans>
